@@ -73,7 +73,7 @@ router.post('/', async (req, res, next) => {
             return res.status(400).json({ error: 'Email already exists' });
         }
 
-        const newContact = { firstName, lastName, email };
+        const newContact = { firstName, lastName, email, favoriteColor, birthday };
         const result = await db
             .collection('contatcts')
             .insertOne(newContact);
