@@ -56,10 +56,10 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-        const { firstName, lastName, email } = req.body;
+        const { firstName, lastName, email, favoriteColor, birthday } = req.body;
         
         
-        if (!firstName || !lastName || !email) {
+        if (!firstName || !lastName || !email || !favoriteColor || !birthday) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
         
