@@ -1,0 +1,43 @@
+### Get all contacts
+GET http://localhost:3000/contacts
+
+###
+
+### Get contacts by email
+#GET http://localhost:3000/contacts?email=oyemade@gmail.com
+
+###
+
+### Get a contact by ID
+GET http://localhost:3000/contacts/679896b1b3bbece788c98a53
+
+###
+
+### Add a new contact
+POST http://localhost:3000/contacts
+
+{
+  "firstName": "Oluwaseun",
+  "lastName": "Oyemade",
+  "email": "oyemade@gmail.com",
+  "favoriteColor": "Black",
+  "birthday": "17/11/1996"
+}
+
+###
+
+### Update a contact by ID
+PUT http://localhost:3000/contacts/678d0193bdb11b265c392e47
+
+{
+  "firstName": "Oluwaseun",
+  "lastName": "Oyemade",
+  "email": "oyemade@gmail.com",
+  "favoriteColor": "Black",
+  "birthday": "17/11/1996"
+}
+
+###
+
+### Delete a contact by ID
+DELETE http://localhost:3000/contacts/678d2d5b1bcf44f96f73da95

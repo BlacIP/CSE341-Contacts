@@ -1,87 +1,122 @@
+// routes/contacts.js
 const express = require('express');
 const router = express.Router();
-const mongodb = require('../database/connect');
-const { ObjectId } = require('mongodb');
+const contactsController = require('../controllers/contactsController');
 
-router.get('/', async (req, res, next) => {
-    try {
-        const db = mongodb.getDb();
-        const { email } = req.query;
+/**
+ * @swagger
+ * /contacts:
+ *   get:
+ *     summary: Retrieve all contacts
+ *     responses:
+ *       200:
+ *         description: A list of contacts
+ */
+router.get('/', contactsController.getContacts);
 
-    
-        if (email) {
-            const result = await db
-                .collection('contatcts')  
-                .find({ email: { $regex: email, $options: 'i' } })
-                .toArray();
+/**
+ * @swagger
+ * /contacts/{id}:
+ *   get:
+ *     summary: Retrieve a contact by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The contact ID
+ *     responses:
+ *       200:
+ *         description: A single contact
+ *       404:
+ *         description: Contact not found
+ */
+router.get('/:id', contactsController.getContactById);
 
-            return res.status(200).json(result);
-        }
+/**
+ * @swagger
+ * /contacts:
+ *   post:
+ *     summary: Add a new contact
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               favoriteColor:
+ *                 type: string
+ *               birthday:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Contact created
+ */
+router.post('/', contactsController.addContact);
 
-    
-        const result = await db
-            .collection('contatcts')  
-            .find()
-            .toArray();
-            
-        res.status(200).json(result);
-    } catch (error) {
-        next(error);
-    }
-});
+/**
+ * @swagger
+ * /contacts/{id}:
+ *   put:
+ *     summary: Update a contact by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The contact ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               favoriteColor:
+ *                 type: string
+ *               birthday:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Contact updated
+ *       404:
+ *         description: Contact not found
+ */
+router.put('/:id', contactsController.updateContact);
 
-
-router.get('/:id', async (req, res, next) => {
-    try {
-      
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ error: 'Invalid ID format' });
-        }
-
-        const db = mongodb.getDb();
-        const result = await db
-            .collection('contatcts')  
-            .findOne({ _id: new ObjectId(req.params.id) });
-            
-        if (!result) {
-            return res.status(404).json({ error: 'Contact not found' });
-        }
-        
-        res.status(200).json(result);
-    } catch (error) {
-        next(error);
-    }
-});
-
-
-router.post('/', async (req, res, next) => {
-    try {
-        const { firstName, lastName, email, favoriteColor, birthday } = req.body;
-        
-        
-        if (!firstName || !lastName || !email || !favoriteColor || !birthday) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-        
-        const db = mongodb.getDb();
-
-        const existingContact = await db
-            .collection('contatcts') 
-            .findOne({ email: email });
-
-        if (existingContact) {
-            return res.status(400).json({ error: 'Email already exists' });
-        }
-
-        const newContact = { firstName, lastName, email, favoriteColor, birthday };
-        const result = await db
-            .collection('contatcts')
-            .insertOne(newContact);
-            
-        res.status(201).json(result);
-    } catch (error) {
-        next(error);
-    }
-});
+/**
+ * @swagger
+ * /contacts/{id}:
+ *   delete:
+ *     summary: Delete a contact by ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The contact ID
+ *     responses:
+ *       200:
+ *         description: Contact deleted
+ *       404:
+ *         description: Contact not found
+ */
+router.delete('/:id', contactsController.deleteContact);
 
 module.exports = router;

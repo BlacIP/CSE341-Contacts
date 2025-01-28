@@ -3,12 +3,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const mongodb = require('./database/connect');
+const swaggerUi = require('swagger-ui-express');
+const swaggerFile = require('./swagger-output.json');
 require('dotenv').config();
 
 
 
 app.use(express.json());
 app.use('/', require('./routes')); 
+//app.use('/contacts', require('./routes/contacts'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
 
 
 app.use((err, req, res, next) => {
