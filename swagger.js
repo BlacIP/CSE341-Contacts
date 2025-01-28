@@ -7,7 +7,7 @@ const doc = {
         description: 'API documentation for the Contacts application',
     },
     host: process.env.HOST || 'localhost:3000',
-    schemes: ['http', 'https'],
+    schemes: ['https'],
     //basePath: '/contacts',
 };
 
