@@ -8,10 +8,10 @@ const doc = {
     },
     host: 'localhost:3000',
     schemes: ['http'],
-    basePath: '/contacts',
+    //basePath: '/contacts',
 };
 
 const outputFile = './swagger-output.json';
-const endpointsFiles = ['./routes/contacts.js'];
+const endpointsFiles = ['./routes/index.js'];
 
 swaggerAutogen(outputFile, endpointsFiles, doc);

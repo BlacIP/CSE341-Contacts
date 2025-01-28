@@ -6,12 +6,22 @@
     "version": "1.0.0"
   },
   "host": "localhost:3000",
-  "basePath": "/contacts",
+  "basePath": "/",
   "schemes": [
     "http"
   ],
   "paths": {
     "/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/contacts/": {
       "get": {
         "description": "",
         "parameters": [
@@ -65,7 +75,7 @@
         }
       }
     },
-    "/{id}": {
+    "/contacts/{id}": {
       "get": {
         "description": "",
         "parameters": [
