@@ -10,6 +10,7 @@ const doc = {
     },
     schemes: process.env.NODE_ENV === 'production' ? ['https'] : ['http'],
     //basePath: '/contacts',
+    
 };
 
 const outputFile = './swagger-output.json';

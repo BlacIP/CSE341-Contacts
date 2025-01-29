@@ -15,12 +15,10 @@ app.use('/', require('./routes'));
 //app.use('/contacts', require('./routes/contacts'));
 app.use('/api-docs', (req, res, next) => {
     swaggerFile.host = req.get('host');
-    swaggerFile.schemes = [req.protocol];
+    swaggerFile.schemes = process.env.NODE_ENV === 'production' ? ['https'] : [req.protocol];
     req.swaggerDoc = swaggerFile;
     next();
 }, swaggerUi.serve, swaggerUi.setup(swaggerFile));
-
-
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
