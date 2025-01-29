@@ -6,7 +6,7 @@ const doc = {
         title: 'Contacts API',
         description: 'API documentation for the Contacts application',
     },
-    schemes: ['http', 'https'],
+    schemes: process.env.NODE_ENV === 'production' ? ['https'] : ['http'],
     //basePath: '/contacts',
 };
 
