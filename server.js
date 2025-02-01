@@ -1,29 +1,31 @@
 const express = require('express');
 const cors = require('cors');
-const app = express();
-const port = process.env.PORT || 3000;
 const bodyParser = require('body-parser');
 const mongodb = require('./database/connect');
-const swaggerUi = require('swagger-ui-express');
-const swaggerFile = require('./swagger-output.json');
+//const swaggerUi = require('swagger-ui-express');
+//const swaggerFile = require('./swagger-output.json');
+const errorHandler = require('./middleware/errorHandler');
 require('dotenv').config();
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+
 
 
 app.use(cors());
 app.use(express.json());
 app.use('/', require('./routes')); 
 //app.use('/contacts', require('./routes/contacts'));
-app.use('/api-docs', (req, res, next) => {
-    swaggerFile.host = req.get('host');
-    swaggerFile.schemes = process.env.NODE_ENV === 'production' ? ['https'] : [req.protocol];
-    req.swaggerDoc = swaggerFile;
-    next();
-}, swaggerUi.serve, swaggerUi.setup(swaggerFile));
-
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Something went wrong!' });
+    errorHandler(err, req, res, next);
   });
+
+
+// app.use((err, req, res, next) => {
+//     console.error(err.stack);
+//     res.status(500).json({ error: 'Something went wrong!' });
+//   });
 
 mongodb.initDb((err) => {
     if (err) {

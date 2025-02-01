@@ -1,125 +1,89 @@
 const mongodb = require('../database/connect');
 const { ObjectId } = require('mongodb');
+const { NotFoundError, AppError } = require('../helpers/errorClasses');
+const { handleMongoErrors } = require('../middleware/errorHandler');
 
 const getContacts = async (req, res, next) => {
     try {
-        const db = mongodb.getDb();
-        const { email } = req.query;
-
-        if (email) {
-            const result = await db
-                .collection('contacts')
-                .find({ email: { $regex: email, $options: 'i' } })
-                .toArray();
-
-            return res.status(200).json(result);
-        }
-
-        const result = await db
-            .collection('contacts')
-            .find()
-            .toArray();
-
-        res.status(200).json(result);
+        const contacts = await mongodb.getDb().collection('contacts').find().toArray();
+        res.status(200).json({
+            status: 'success',
+            results: contacts.length,
+            data: {
+                contacts
+            }
+        });
     } catch (error) {
-        next(error);
+        next(handleMongoErrors(error));
     }
 };
 
 const getContactById = async (req, res, next) => {
     try {
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ error: 'Invalid ID format' });
+        const contact = await mongodb.getDb().collection('contacts').findOne({ _id: new ObjectId(req.params.id) });
+        if (!contact) {
+            throw new NotFoundError('Contact not found');
         }
-
-        const db = mongodb.getDb();
-        const result = await db
-            .collection('contacts')
-            .findOne({ _id: new ObjectId(req.params.id) });
-
-        if (!result) {
-            return res.status(404).json({ error: 'Contact not found' });
-        }
-
-        res.status(200).json(result);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                contact
+            }
+        });
     } catch (error) {
-        next(error);
+        next(handleMongoErrors(error));
     }
 };
 
 const addContact = async (req, res, next) => {
     try {
-        const { firstName, lastName, email, favoriteColor, birthday } = req.body;
-
-        if (!firstName || !lastName || !email || !favoriteColor || !birthday) {
-            return res.status(400).json({ error: 'Missing required fields' });
-        }
-
-        const db = mongodb.getDb();
-
-        const existingContact = await db
-            .collection('contacts')
-            .findOne({ email: email });
-
-        if (existingContact) {
-            return res.status(400).json({ error: 'Email already exists' });
-        }
-
-        const newContact = { firstName, lastName, email, favoriteColor, birthday };
-        const result = await db
-            .collection('contacts')
-            .insertOne(newContact);
-
-        res.status(201).json(result);
+        const result = await mongodb.getDb().collection('contacts').insertOne(req.body);
+        const contact = result.ops[0];
+        res.status(201).json({
+            status: 'success',
+            data: {
+                contact
+            }
+        });
     } catch (error) {
-        next(error);
+        next(handleMongoErrors(error));
     }
 };
 
 const updateContact = async (req, res, next) => {
     try {
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ error: 'Invalid ID format' });
+        const result = await mongodb.getDb().collection('contacts').findOneAndUpdate(
+            { _id: new ObjectId(req.params.id) },
+            { $set: req.body },
+            { returnOriginal: false, upsert: false }
+        );
+        const contact = result.value;
+        if (!contact) {
+            throw new NotFoundError('Contact not found');
         }
-
-        const { firstName, lastName, email, favoriteColor, birthday } = req.body;
-
-        const db = mongodb.getDb();
-        const result = await db
-            .collection('contacts')
-            .updateOne(
-                { _id: new ObjectId(req.params.id) },
-                { $set: { firstName, lastName, email, favoriteColor, birthday } }
-            );
-
-        if (result.matchedCount === 0) {
-            return res.status(404).json({ error: 'Contact not found' });
-        }
-
-        res.status(200).json(result);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                contact
+            }
+        });
     } catch (error) {
-        next(error);
+        next(handleMongoErrors(error));
     }
 };
 
 const deleteContact = async (req, res, next) => {
     try {
-        if (!ObjectId.isValid(req.params.id)) {
-            return res.status(400).json({ error: 'Invalid ID format' });
-        }
-
-        const db = mongodb.getDb();
-        const result = await db
-            .collection('contacts')
-            .deleteOne({ _id: new ObjectId(req.params.id) });
-
+        const result = await mongodb.getDb().collection('contacts').deleteOne({ _id: new ObjectId(req.params.id) });
         if (result.deletedCount === 0) {
-            return res.status(404).json({ error: 'Contact not found' });
+            throw new NotFoundError('Contact not found');
         }
-
-        res.status(200).json({ message: 'Contact deleted successfully' });
+        res.status(200).json({
+            status: 'success',
+            data: null
+        });
     } catch (error) {
-        next(error);
+        next(handleMongoErrors(error));
     }
 };
 
